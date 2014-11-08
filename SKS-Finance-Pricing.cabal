@@ -1,0 +1,23 @@
+name: SKS-Finance-Pricing
+version: 0.1.0.0
+cabal-version: >=1.2
+build-type: Simple
+license: AllRightsReserved
+license-file: LICENSE
+maintainer: torsten.kemps-benedix@sks-ub.de
+synopsis: Credit portfolio risk model (e.g. CreditRisk+)
+description: Pricing models for derivatives and securities
+author: Torsten Kemps-Benedix
+data-dir: ""
+
+library
+    build-depends: base, containers, array, parsec, vector, parallel,
+        erf, containers, array, statistics, hmatrix, primitive, random-source, random-fu,
+        SKS-Finance-Base
+    if os(osx)
+        extra-lib-dirs: /usr/lib
+    exposed-modules: Pricing.BlackScholes
+    ghc-options: -O2
+    exposed: True
+    buildable: True
+    hs-source-dirs: src
