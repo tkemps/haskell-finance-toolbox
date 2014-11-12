@@ -10,7 +10,7 @@ author: Torsten Kemps-Benedix
 
 library
     build-depends: base, containers, array, parsec, vector, parallel, mtl,
-        erf, containers, array, statistics, hmatrix, hmatrix-special, hmatrix-gsl, primitive, random-source, random-fu, repa
+        erf, containers, array, statistics, hmatrix, hmatrix-special, hmatrix-gsl, primitive, random-source, random-fu, repa, splines
     if os(osx)
         extra-lib-dirs: /usr/lib
     exposed-modules: Data.Vector.AddOns,Numeric.Distribution.Normal,Numeric.Distribution.GIG,Numeric.Distribution.VarianceGamma,Numeric.Integration,Numeric.Root,Numeric.Polynomial.ListPolynomial,Numeric.Polynomial.VectorPolynomial,Numeric.Util,Numeric.Knapsack.SubSum,Numeric.Interpolation.Polynomial,Numeric.Interpolation.Spline,Pricing.BlackScholes,Pricing.AmericanOptions
