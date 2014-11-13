@@ -1,4 +1,4 @@
-module BarrierOptions (
+module Pricing.BarrierOptions (
   upAndOutCall,upAndInCall,
   downAndOutCall,downAndInCall,
   downAndOutPut,downAndInPut,
