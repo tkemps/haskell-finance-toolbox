@@ -10,7 +10,7 @@ import Data.Array.ST (STArray,MArray,newArray,newListArray,writeArray,
                       readArray,getElems,getBounds)
 import Numeric.Interpolation.Polynomial (polynomialInterpolation)
 
-trapezoidal :: (Fractional a) => (a -> a) -> a -> a -> [a]
+trapezoidal :: (Double -> Double) -> Double -> Double -> [Double]
 trapezoidal f a b = s1:(trapzd 2 s1)
   where s1 = 0.5*(b-a)*(f a + f b)
         trapzd n s = let d = (b-a)/(fromIntegral n)
