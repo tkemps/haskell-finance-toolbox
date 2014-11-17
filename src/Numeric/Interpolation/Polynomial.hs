@@ -5,34 +5,31 @@ module Numeric.Interpolation.Polynomial (
 
 import           Control.Applicative
 import           Control.Monad.Identity
+import           Control.Monad.ST
 import           Data.Array.Repa ((!),DIM1,DIM2)
 import qualified Data.Array.Repa as R
 import           Data.Array.Repa.Index
+import qualified Data.Array.Repa.Operators.Mapping as R
 import           Data.Array.Repa.Shape
+import           Data.Array.Repa.Slice
 import           Data.List  (sortBy)
+import qualified Data.Vector.Unboxed as V hiding (length)
+import qualified Data.Vector.Unboxed.Mutable as V
+import System.IO.Unsafe
 
 type Vec s = R.Array s DIM1 Double
 type VecD = Vec R.D
 type VecU = Vec R.U
 
-(!.) :: R.Source r e => R.Array r R.DIM1 e -> Int -> e
+(!.) :: R.Source r e => R.Array r DIM1 e -> Int -> e
 v !. i = v!ix1 i
 
-(!..) :: R.Source r e => R.Array r R.DIM2 e -> (Int,Int) -> e
+(!..) :: R.Source r e => R.Array r DIM2 e -> (Int,Int) -> e
 m !.. (i,j) = m!ix2 i j
 
 vecFromList l = let n = length l
                     sh = R.shapeOfList [n] :: DIM1
                 in R.fromListUnboxed sh l
-
-{-
-let x = vecFromList [1.0,2.0,3.0,4.0,5.0,7.0,10.0]
-let y = vecFromList[5.0,5.0,7.0,5.8,6.0,7.0, 7.5]
-let x0=2.8
-linearInterpolation x y x0
-logLinearInterpolation x y x0
-cubicInterpolation x y x0
--}
 
 brack :: (R.Source s Double) => Vec s -> Double -> (Int,Int)
 brack x x0 = if n<=1
@@ -93,3 +90,12 @@ diffWithIndex ext x0 l sh = (R.toIndex ext sh,abs $ l sh - x0)
 
 minWithIndex :: (Int, Double) -> (Int, Double) -> (Int, Double)
 minWithIndex (sh1,dx1) (sh2,dx2) = if dx1<dx2 then (sh1,dx1) else (sh2,dx2)
+
+{-
+let x = vecFromList [1.0,2.0,3.0,4.0,5.0,7.0,10.0]
+let y = vecFromList[5.0,5.0,7.0,5.8,6.0,7.0, 7.5]
+let x0=2.8
+linearInterpolation x y x0
+logLinearInterpolation x y x0
+-}
+
