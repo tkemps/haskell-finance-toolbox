@@ -1,11 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Numeric.Interpolation.Polynomial (
-  linearInterpolation, logLinearInterpolation,cubicInterpolation
+  linearInterpolation, logLinearInterpolation,cubicInterpolation,polynomialInterpolation
   ) where
 
 import           Control.Applicative
 import           Control.Monad.Identity
 import           Control.Monad.ST
+import qualified Data.Array.IArray as A
 import           Data.Array.Repa ((!),DIM1,DIM2)
 import qualified Data.Array.Repa as R
 import           Data.Array.Repa.Index
@@ -13,9 +14,10 @@ import qualified Data.Array.Repa.Operators.Mapping as R
 import           Data.Array.Repa.Shape
 import           Data.Array.Repa.Slice
 import           Data.List  (sortBy)
+import qualified Data.List as L
 import qualified Data.Vector.Unboxed as V hiding (length)
 import qualified Data.Vector.Unboxed.Mutable as V
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
 type Vec s = R.Array s DIM1 Double
 type VecD = Vec R.D
@@ -99,3 +101,32 @@ linearInterpolation x y x0
 logLinearInterpolation x y x0
 -}
 
+v ^! i = v A.! i
+
+--- |Given coordinates xa[1..n] and ya[1..n], and given a value x, this routine
+--- returns a value y, and an error estimate dy. If P(x) is the polynomial of
+--- degree n >= 1 such that P(xai) = yai; i=1,...,n, then the returned value
+--- is y = P(x) together with an error estimate. The list of points shall have
+--- the following form:
+---      ps = array (1,3) [(1,(1,2)),(2,(3,4)),(3,(7,1))] :: Array Int (Double,Double)
+polynomialInterpolation :: A.Array Int (Double,Double) -> Double -> (Double,Double)
+polynomialInterpolation a x = let l=(snd (a^!ic)):step n0 (ic-1)
+                              in (sum l,last l)
+    where   (n0,n1) = A.bounds a
+            cmpByX (_,(x1,_)) (_,(x2,_)) = compare (abs (x-x1)) (abs (x-x2))
+            closest a x = L.minimumBy cmpByX (A.assocs a)
+            ic = fst $ closest a x  -- index of closest
+            c m i = let xi = fst $ a^!i
+                        xipm = fst $ a^!(i+m)
+                    in if xi==xipm then equalXs
+                       else if m==n0 then (xi-x)*((snd $ a^!(i+1)) - (snd $ a^!i))/(xi-xipm)
+                       else (xi-x)*((c (m-1) (i+1)) - (d (m-1) i))/(xi-xipm)
+            d m i = let xi = fst $ a^!i
+                        xipm = fst $ a^!(i+m)
+                    in if xi==xipm then equalXs
+                       else if m==n0 then (xipm-x)*((snd $ a^!(i+1)) - (snd $ a^!i))/(xi-xipm)
+                       else (xipm-x)*((c (m-1) (i+1)) - (d (m-1) i))/(xi-xipm)
+            step m ic | m==n1-1 = if ic==0 then [c m 1] else [d m ic]   -- last step: c or d
+                      | 2*(ic-n0)<n1-m = (c m (ic+1)):step (m+1) ic     -- c step
+                      | otherwise = (d m ic):step (m+1) (ic-1)          -- d step
+            equalXs = error "polynomialInterpolation: Points must not have equal x-coordinates."

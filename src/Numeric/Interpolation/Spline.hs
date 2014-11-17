@@ -79,7 +79,7 @@ cubicSpline x y = let dx = vecDiff x   -- length n-1
 evalSpline :: R.Source r Double => Vec r -> Vec r -> VecU -> VecU -> VecU -> Double -> Double
 evalSpline x y a b c x0 =
   let n = R.size (R.extent x)
-      xs = filter (\(_,x)->x<x0) (zip [0..] (R.toList x))
+      xs = filter (\(_,x)->x<x0) (zip [0..] (R.toList x))  -- to be optimized!
       i = fst $ last $ if null xs then error $ "evalSpline: x="++show x0++" out of range." else xs
       i' = ix1 (if i==n-1 then error  $ "evalSpline: x="++show x0++" out of range." else i)
       dx = x0-x!i'
