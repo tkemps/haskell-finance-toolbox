@@ -1,9 +1,12 @@
 module Pricing.BlackScholes (
-  callOption,callDelta,callGamma,callTheta,callSpeed,callVega,callRho,callRhoD,
-  putOption,putDelta,putGamma,putTheta,putSpeed,putVega,putRho,putRhoD,
+  callOption,callOptionGBS,callDelta,callGamma,callTheta,callSpeed,callVega,callRho,callRhoD,
+  putOption,putOptionGBS,putDelta,putGamma,putTheta,putSpeed,putVega,putRho,putRhoD,
   d1,d2) where
 
 import Numeric.Distribution.Normal
+
+callOptionGBS x vol b r k t1 = callOption x vol (b-r) r k t1
+putOptionGBS x vol b r k t1 = putOption x vol (b-r) r k t1
 
 -- |Black-Scholes price of an equity call option.
 -- x = asset price
